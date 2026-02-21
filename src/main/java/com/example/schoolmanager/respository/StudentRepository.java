@@ -1,11 +1,8 @@
 package com.example.schoolmanager.respository;
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.example.schoolmanager.model.Student;
+import java.util.UUID;
 
-public interface StudentRepository extends JpaRepository<Student, Integer> {
-    List<Student> findByNameContainingIgnoreCase(String name);
+public interface StudentRepository extends JpaRepository<Student, UUID> {
 }

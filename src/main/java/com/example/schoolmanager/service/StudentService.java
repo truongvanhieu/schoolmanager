@@ -1,36 +1,43 @@
 package com.example.schoolmanager.service;
-
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.example.schoolmanager.model.Student;
 import com.example.schoolmanager.respository.StudentRepository;
+import java.util.UUID;
 
 @Service
 public class StudentService {
 
-    @Autowired
-    private StudentRepository repository;
+    private final StudentRepository repo;
 
-    public Student addStudent(Student student) {
-        return repository.save(student);
+    public StudentService(StudentRepository repo) {
+        this.repo = repo;
     }
 
-    public void deleteStudent(int id) {
-        repository.deleteById(id);
+    public List<Student> getAll() {
+        return repo.findAll();
     }
 
-    public List<Student> findByName(String name){
-        return repository.findByNameContainingIgnoreCase(name);
+    public Student getById(UUID id) {
+        return repo.findById(id).orElse(null);
     }
 
-    public List<Student> getAll(){
-        return repository.findAll();
+    public Student create(Student student) {
+        return repo.save(student);   // UUID tự sinh ở đây
     }
 
-    public Student getStudentById(int id){
-        return repository.findById(id).orElse(null);
+    public Student update(UUID id, Student student) {
+        Student old = getById(id);
+        if (old == null) return null;
+
+        old.setName(student.getName());
+        old.setEmail(student.getEmail());
+
+        return repo.save(old);
+    }
+
+    public void delete(UUID id) {
+        repo.deleteById(id);
     }
 }
