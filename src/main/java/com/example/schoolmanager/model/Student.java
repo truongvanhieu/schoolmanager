@@ -18,10 +18,11 @@ public class Student {
             nullable = false)
     private UUID id;
 
-    @Column(length = 100)
+    //  NVARCHAR trên SQL Server
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String name;
 
-    @Column(length = 100)
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String email;
         // ===== Constructor =====
     public Student() {}

@@ -1,6 +1,9 @@
 package com.example.schoolmanager.service;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.example.schoolmanager.model.Student;
 import com.example.schoolmanager.respository.StudentRepository;
@@ -39,5 +42,14 @@ public class StudentService {
 
     public void delete(UUID id) {
         repo.deleteById(id);
+    }
+
+    public Page<Student> search(String keyword, int page, int size) {
+        String k = (keyword == null) ? "" : keyword.trim();
+        Pageable pageable = PageRequest.of(page, size);
+        if (k.isEmpty()) {
+            return repo.findAll(pageable);
+        }
+        return repo.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(k, k, pageable);
     }
 }
