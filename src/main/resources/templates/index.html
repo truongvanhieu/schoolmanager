@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Student Manager</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(to right, #d4fc79, #96e6a1);
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2e7d32;
+        }
+
+        .container {
+            width: 90%;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-add { background: #4CAF50; color: white; }
+        .btn-update { background: #2196F3; color: white; }
+        .btn-delete { background: #f44336; color: white; }
+        .btn-search { background: #ff9800; color: white; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #e0f2f1;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🌿 Student Manager</h1>
+
+<div class="container">
+
+    <!-- ADD -->
+    <div class="card">
+        <h3>➕ Thêm sinh viên</h3>
+        <input id="name" placeholder="Name">
+        <input id="email" placeholder="Email">
+        <input id="age" placeholder="Age">
+        <button class="btn-add" onclick="addStudent()">Add</button>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="card">
+        <h3>🔍 Tìm kiếm</h3>
+        <input id="searchName" placeholder="Nhập tên">
+        <button class="btn-search" onclick="searchStudent()">Search</button>
+        <button onclick="loadStudents()">Reset</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card">
+        <h3>📋 Danh sách sinh viên</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Age</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="table"></tbody>
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+const API = "http://localhost:8081/api/students";
+
+// LOAD
+function loadStudents() {
+    fetch(API)
+    .then(res => res.json())
+    .then(data => {
+        let html = "";
+        data.forEach(s => {
+            html += `
+            <tr>
+                <td>${s.id}</td>
+                <td><input value="${s.name}" id="name-${s.id}"></td>
+                <td><input value="${s.email}" id="email-${s.id}"></td>
+                <td><input value="${s.age}" id="age-${s.id}"></td>
+                <td>
+                    <button class="btn-update" onclick="update(${s.id})">Update</button>
+                    <button class="btn-delete" onclick="deleteStudent(${s.id})">Delete</button>
+                </td>
+            </tr>`;
+        });
+        document.getElementById("table").innerHTML = html;
+    });
+}
+
+// ADD (FIX UTF-8)
+function addStudent() {
+    fetch(API, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: JSON.stringify({
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            age: document.getElementById("age").value
+        })
+    }).then(() => {
+        loadStudents();
+
+        // clear
+        document.getElementById("name").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("age").value = "";
+    });
+}
+
+// DELETE
+function deleteStudent(id) {
+    fetch(API + "/delete/" + id, {method: "POST"})
+    .then(() => loadStudents());
+}
+
+// UPDATE (FIX UTF-8)
+function update(id) {
+    fetch(API + "/update/" + id, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: JSON.stringify({
+            name: document.getElementById("name-"+id).value,
+            email: document.getElementById("email-"+id).value,
+            age: document.getElementById("age-"+id).value
+        })
+    }).then(() => loadStudents());
+}
+
+// SEARCH
+function searchStudent() {
+    fetch(API + "/search?name=" + document.getElementById("searchName").value)
+    .then(res => res.json())
+    .then(data => {
+        let html = "";
+        data.forEach(s => {
+            html += `
+            <tr>
+                <td>${s.id}</td>
+                <td>${s.name}</td>
+                <td>${s.email}</td>
+                <td>${s.age}</td>
+                <td></td>
+            </tr>`;
+        });
+        document.getElementById("table").innerHTML = html;
+    });
+}
+
+loadStudents();
+
+</script>
+
+</body>
+</html>
