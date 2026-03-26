@@ -70,18 +70,46 @@
         tr:hover {
             background: #e0f2f1;
         }
+
+        /* LOADING */
+        #loading {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.7);
+            top: 0;
+            left: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 6px solid #ccc;
+            border-top: 6px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 
 <body>
 
-<h1>🌿 Student Manager</h1>
+<h1> Student Manager</h1>
 
 <div class="container">
 
     <!-- ADD -->
     <div class="card">
-        <h3>➕ Thêm sinh viên</h3>
+        <h3> Thêm sinh viên</h3>
         <input id="name" placeholder="Name">
         <input id="email" placeholder="Email">
         <input id="age" placeholder="Age">
@@ -90,7 +118,7 @@
 
     <!-- SEARCH -->
     <div class="card">
-        <h3>🔍 Tìm kiếm</h3>
+        <h3> Tìm kiếm</h3>
         <input id="searchName" placeholder="Nhập tên">
         <button class="btn-search" onclick="searchStudent()">Search</button>
         <button onclick="loadStudents()">Reset</button>
@@ -98,7 +126,7 @@
 
     <!-- TABLE -->
     <div class="card">
-        <h3>📋 Danh sách sinh viên</h3>
+        <h3> Danh sách sinh viên</h3>
 
         <table>
             <thead>
@@ -117,35 +145,65 @@
 
 </div>
 
+<!-- LOADING -->
+<div id="loading">
+    <div class="spinner"></div>
+</div>
+
 <script>
 
 const API = "http://localhost:8081/api/students";
 
+// LOADING
+function showLoading() {
+    document.getElementById("loading").style.display = "flex";
+}
+function hideLoading() {
+    document.getElementById("loading").style.display = "none";
+}
+
 // LOAD
 function loadStudents() {
+    showLoading();
     fetch(API)
     .then(res => res.json())
-    .then(data => {
-        let html = "";
+    .then(data => renderTable(data))
+    .finally(() => hideLoading());
+}
+
+// RENDER TABLE (dùng chung cho load + search)
+function renderTable(data) {
+    let html = "";
+
+    if (data.length === 0) {
+        html = `
+        <tr>
+            <td colspan="5" style="color:red;">
+                 Không tìm thấy sinh viên
+            </td>
+        </tr>`;
+    } else {
         data.forEach(s => {
             html += `
-            <tr>
+            <tr id="row-${s.id}">
                 <td>${s.id}</td>
-                <td><input value="${s.name}" id="name-${s.id}"></td>
-                <td><input value="${s.email}" id="email-${s.id}"></td>
-                <td><input value="${s.age}" id="age-${s.id}"></td>
+                <td id="name-${s.id}">${s.name}</td>
+                <td id="email-${s.id}">${s.email}</td>
+                <td id="age-${s.id}">${s.age}</td>
                 <td>
-                    <button class="btn-update" onclick="update(${s.id})">Update</button>
+                    <button class="btn-update" onclick="edit(${s.id})">Update</button>
                     <button class="btn-delete" onclick="deleteStudent(${s.id})">Delete</button>
                 </td>
             </tr>`;
         });
-        document.getElementById("table").innerHTML = html;
-    });
+    }
+
+    document.getElementById("table").innerHTML = html;
 }
 
-// ADD (FIX UTF-8)
+// ADD
 function addStudent() {
+    showLoading();
     fetch(API, {
         method: "POST",
         headers: {
@@ -156,10 +214,10 @@ function addStudent() {
             email: document.getElementById("email").value,
             age: document.getElementById("age").value
         })
-    }).then(() => {
-        loadStudents();
-
-        // clear
+    })
+    .then(() => loadStudents())
+    .finally(() => {
+        hideLoading();
         document.getElementById("name").value = "";
         document.getElementById("email").value = "";
         document.getElementById("age").value = "";
@@ -168,43 +226,64 @@ function addStudent() {
 
 // DELETE
 function deleteStudent(id) {
+    if (!confirm("Bạn có chắc muốn xóa?")) return;
+
+    showLoading();
     fetch(API + "/delete/" + id, {method: "POST"})
-    .then(() => loadStudents());
+    .then(() => loadStudents())
+    .finally(() => hideLoading());
 }
 
-// UPDATE (FIX UTF-8)
-function update(id) {
+// EDIT
+function edit(id) {
+    const name = document.getElementById("name-" + id).innerText;
+    const email = document.getElementById("email-" + id).innerText;
+    const age = document.getElementById("age-" + id).innerText;
+
+    document.getElementById("row-" + id).innerHTML = `
+        <td>${id}</td>
+        <td><input id="edit-name-${id}" value="${name}"></td>
+        <td><input id="edit-email-${id}" value="${email}"></td>
+        <td><input id="edit-age-${id}" value="${age}"></td>
+        <td>
+            <button class="btn-add" onclick="save(${id})">Save</button>
+            <button onclick="loadStudents()">Cancel</button>
+        </td>
+    `;
+}
+
+// SAVE
+function save(id) {
+    showLoading();
     fetch(API + "/update/" + id, {
         method: "POST",
         headers: {
             "Content-Type": "application/json; charset=UTF-8"
         },
         body: JSON.stringify({
-            name: document.getElementById("name-"+id).value,
-            email: document.getElementById("email-"+id).value,
-            age: document.getElementById("age-"+id).value
+            name: document.getElementById("edit-name-"+id).value,
+            email: document.getElementById("edit-email-"+id).value,
+            age: document.getElementById("edit-age-"+id).value
         })
-    }).then(() => loadStudents());
+    })
+    .then(() => loadStudents())
+    .finally(() => hideLoading());
 }
 
 // SEARCH
 function searchStudent() {
-    fetch(API + "/search?name=" + document.getElementById("searchName").value)
+    const keyword = document.getElementById("searchName").value.trim();
+
+    if (keyword === "") {
+        alert("Vui lòng nhập tên!");
+        return;
+    }
+
+    showLoading();
+    fetch(API + "/search?name=" + encodeURIComponent(keyword))
     .then(res => res.json())
-    .then(data => {
-        let html = "";
-        data.forEach(s => {
-            html += `
-            <tr>
-                <td>${s.id}</td>
-                <td>${s.name}</td>
-                <td>${s.email}</td>
-                <td>${s.age}</td>
-                <td></td>
-            </tr>`;
-        });
-        document.getElementById("table").innerHTML = html;
-    });
+    .then(data => renderTable(data))
+    .finally(() => hideLoading());
 }
 
 loadStudents();

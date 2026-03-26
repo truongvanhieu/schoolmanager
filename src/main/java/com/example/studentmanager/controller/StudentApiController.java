@@ -33,9 +33,9 @@ public class StudentApiController {
     }
 
     // 3: Search
-    @PostMapping("/search")
-    public List<Student> search(@RequestBody Student s) {
-        return repo.findByNameContainingIgnoreCase(s.getName());
+    @GetMapping("/search")
+    public List<Student> search(@RequestParam String name) {
+        return repo.findByNameContainingIgnoreCase(name);
     }
 
     // 4: Get by ID
