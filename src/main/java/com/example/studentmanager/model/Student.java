@@ -5,7 +5,7 @@ import lombok.*;
 
 @Entity
 @Table(name = "students")
-@Data
+@Data 
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student {
