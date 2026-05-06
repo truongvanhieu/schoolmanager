@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Student Manager</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --primary: #d4a373;
+            --primary-light: #e6ccb2;
+            --accent: #faedcd;
+            --text-main: #5e503f;
+            --text-muted: #8d7b68;
+            --white: #ffffff;
+            --glass: rgba(255, 255, 255, 0.7);
+            --shadow: 0 8px 32px 0 rgba(141, 123, 104, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(212, 163, 115, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(250, 237, 205, 0.1) 0px, transparent 50%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 40px;
+            color: var(--primary);
+            letter-spacing: -1px;
+            position: relative;
+        }
+
+        h1::after {
+            content: 'The Angel Next Door Style';
+            display: block;
+            font-size: 0.9rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 400;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(141, 123, 104, 0.2);
+        }
+
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            border: 2px solid var(--primary-light);
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(212, 163, 115, 0.1);
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-add { 
+            background: var(--primary); 
+            color: white; 
+            box-shadow: 0 4px 15px rgba(212, 163, 115, 0.3);
+        }
+        .btn-add:hover { background: #c08d5c; }
+
+        .btn-update { 
+            background: var(--primary-light); 
+            color: var(--text-main); 
+        }
+        .btn-update:hover { background: #dab99a; }
+
+        .btn-delete { 
+            background: #fdf2f2; 
+            color: #c53030; 
+        }
+        .btn-delete:hover { background: #fee2e2; }
+
+        .btn-search { 
+            background: var(--accent); 
+            color: var(--text-main); 
+        }
+        .btn-search:hover { background: #f5e1b1; }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-light);
+            color: var(--text-main);
+        }
+        .btn-outline:hover {
+            background: var(--primary-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            margin-top: 10px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px 20px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 15px 20px;
+            background: var(--white);
+            transition: var(--transition);
+        }
+
+        td:first-child { border-radius: 16px 0 0 16px; }
+        td:last-child { border-radius: 0 16px 16px 0; }
+
+        tr:hover td {
+            background: #fffdfa;
+            transform: scale(1.01);
+        }
+
+        /* LOADING */
+        #loading {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: rgba(253, 251, 247, 0.8);
+            backdrop-filter: blur(8px);
+            top: 0;
+            left: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--primary-light);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .input-group { flex-direction: column; }
+            input { width: 100%; }
+            button { width: 100%; }
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Student Manager</h1>
+
+<div class="container">
+
+    <!-- ADD -->
+    <div class="card">
+        <h3><i class="fas fa-user-plus"></i> Thêm sinh viên</h3>
+        <div class="input-group">
+            <input id="name" placeholder="Name">
+            <input id="email" placeholder="Email">
+            <input id="age" placeholder="Age">
+            <button class="btn-add" onclick="addStudent()">
+                <i class="fas fa-plus"></i> Add
+            </button>
+        </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="card">
+        <h3><i class="fas fa-search"></i> Tìm kiếm</h3>
+        <div class="input-group">
+            <input id="searchName" placeholder="Nhập tên">
+            <button class="btn-search" onclick="searchStudent()">
+                <i class="fas fa-magnifying-glass"></i> Search
+            </button>
+            <button class="btn-outline" onclick="loadStudents()">
+                <i class="fas fa-rotate"></i> Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card">
+        <h3><i class="fas fa-list"></i> Danh sách sinh viên</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Age</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="table"></tbody>
+        </table>
+
+    </div>
+
+</div>
+
+<!-- LOADING -->
+<div id="loading">
+    <div class="spinner"></div>
+</div>
+
+<script>
+
+const API = "http://localhost:8081/api/students";
+
+// LOADING
+function showLoading() {
+    document.getElementById("loading").style.display = "flex";
+}
+function hideLoading() {
+    document.getElementById("loading").style.display = "none";
+}
+
+// LOAD
+function loadStudents() {
+    showLoading();
+    fetch(API)
+    .then(res => res.json())
+    .then(data => renderTable(data))
+    .finally(() => hideLoading());
+}
+
+// RENDER TABLE (dùng chung cho load + search)
+function renderTable(data) {
+    let html = "";
+
+    if (data.length === 0) {
+        html = `
+        <tr>
+            <td colspan="5" style="color:var(--primary); font-weight: 500; text-align: center; padding: 30px;">
+                 <i class="fas fa-circle-exclamation"></i> Không tìm thấy sinh viên
+            </td>
+        </tr>`;
+    } else {
+        data.forEach(s => {
+            html += `
+            <tr id="row-${s.id}">
+                <td><strong>#${s.id}</strong></td>
+                <td id="name-${s.id}">${s.name}</td>
+                <td id="email-${s.id}">${s.email}</td>
+                <td id="age-${s.id}">${s.age}</td>
+                <td>
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <button class="btn-update" onclick="edit(${s.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-delete" onclick="deleteStudent(${s.id})">
+                            <i class="fas fa-trash-can"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
+        });
+    }
+
+    document.getElementById("table").innerHTML = html;
+}
+
+// ADD
+function addStudent() {
+    showLoading();
+    fetch(API, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: JSON.stringify({
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            age: document.getElementById("age").value
+        })
+    })
+    .then(() => loadStudents())
+    .finally(() => {
+        hideLoading();
+        document.getElementById("name").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("age").value = "";
+    });
+}
+
+// DELETE
+function deleteStudent(id) {
+    if (!confirm("Bạn có chắc muốn xóa?")) return;
+
+    showLoading();
+    fetch(API + "/delete/" + id, {method: "POST"})
+    .then(() => loadStudents())
+    .finally(() => hideLoading());
+}
+
+// EDIT
+function edit(id) {
+    const name = document.getElementById("name-" + id).innerText;
+    const email = document.getElementById("email-" + id).innerText;
+    const age = document.getElementById("age-" + id).innerText;
+
+    document.getElementById("row-" + id).innerHTML = `
+        <td><strong>#${id}</strong></td>
+        <td><input id="edit-name-${id}" value="${name}" style="width: 100%;"></td>
+        <td><input id="edit-email-${id}" value="${email}" style="width: 100%;"></td>
+        <td><input id="edit-age-${id}" value="${age}" style="width: 100%;"></td>
+        <td>
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button class="btn-add" onclick="save(${id})">
+                    <i class="fas fa-check"></i>
+                </button>
+                <button class="btn-outline" onclick="loadStudents()">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+        </td>
+    `;
+}
+
+// SAVE
+function save(id) {
+    showLoading();
+    fetch(API + "/update/" + id, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: JSON.stringify({
+            name: document.getElementById("edit-name-"+id).value,
+            email: document.getElementById("edit-email-"+id).value,
+            age: document.getElementById("edit-age-"+id).value
+        })
+    })
+    .then(() => loadStudents())
+    .finally(() => hideLoading());
+}
+
+// SEARCH
+function searchStudent() {
+    const keyword = document.getElementById("searchName").value.trim();
+
+    if (keyword === "") {
+        alert("Vui lòng nhập tên!");
+        return;
+    }
+
+    showLoading();
+    fetch(API + "/search?name=" + encodeURIComponent(keyword))
+    .then(res => res.json())
+    .then(data => renderTable(data))
+    .finally(() => hideLoading());
+}
+
+loadStudents();
+
+</script>
+
+</body>
+</html>
